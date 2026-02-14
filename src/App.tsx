@@ -1,7 +1,7 @@
-import type { FlowGraphRef } from './components/FlowGraph'
+import type { MindMapRef } from './components/mind-map'
 import type { MindNode } from './data/MindNode'
 import { useEffect, useRef, useState } from 'react'
-import { FlowGraph } from './components/FlowGraph'
+import { MindMap } from './components/mind-map'
 import { Toaster } from './components/ui/sonner'
 import './App.css'
 
@@ -35,7 +35,7 @@ const skillJson: MindNode = {
 
 function App() {
   const [isDarkMode, setIsDarkMode] = useState(false)
-  const graphRef = useRef<FlowGraphRef>(null)
+  const graphRef = useRef<MindMapRef>(null)
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light')
@@ -56,8 +56,8 @@ function App() {
           </button>
         </div>
       </div>
-      <div className="graph-container">
-        <FlowGraph ref={graphRef} title="Vue3" data={skillJson} isDarkMode={isDarkMode} />
+      <div className="graph-container" style={{ height: '300px' }}>
+        <MindMap ref={graphRef} title="Vue3" data={skillJson} isDarkMode={isDarkMode} />
       </div>
       <Toaster />
     </div>

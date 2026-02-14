@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { ButtonGroup } from '@/components/ui/button-group'
 import { Toggle } from '@/components/ui/toggle'
 
-interface FlowGraphToolbarProps {
+interface MindMapToolbarProps {
   zoomIn: () => void
   zoomOut: () => void
   zoomToOne: () => void
@@ -15,7 +15,7 @@ interface FlowGraphToolbarProps {
   onToggleGrid: (checked: boolean) => void
 }
 
-export const FlowGraphToolbar: React.FC<FlowGraphToolbarProps> = ({
+export const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
   zoomIn,
   zoomOut,
   zoomToOne,

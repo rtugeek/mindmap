@@ -34,7 +34,7 @@ export const RenameNodeDialog: React.FC<RenameNodeDialogProps> = ({
         <Input
           value={value}
           autoFocus
-          onChange={(e) => onChange(e.target.value)}
+          onChange={e => onChange(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()
