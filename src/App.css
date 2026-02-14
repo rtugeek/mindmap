@@ -1,0 +1,83 @@
+:root {
+  --bg-color: #F2F7FA;
+  --text-color: #333;
+  --node-bg: #fff;
+  --node-border: #c2c8d5;
+  --node-text: #666;
+  --line-color: #C2C8D5;
+  --grid-primary: #eee;
+  --grid-secondary: #ddd;
+  --shadow-color: rgba(0, 0, 0, 0.06);
+  --btn-bg: #fff;
+  --btn-border: #ccc;
+  --btn-hover: #f0f0f0;
+}
+
+[data-theme='dark'] {
+  --bg-color: #1a1a1a;
+  --text-color: #eee;
+  --node-bg: #2b2b2b;
+  --node-border: #555;
+  --node-text: #ccc;
+  --line-color: #555;
+  --grid-primary: #333;
+  --grid-secondary: #444;
+  --shadow-color: rgba(0, 0, 0, 0.4);
+  --btn-bg: #333;
+  --btn-border: #555;
+  --btn-hover: #444;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.header {
+  padding: 0 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--node-border);
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+}
+
+.theme-toggle {
+  padding: 8px 16px;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  color: var(--text-color);
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.theme-toggle:hover {
+  background: var(--btn-hover);
+}
+
+.graph-container {
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+}
+
+@keyframes ant-line-flow {
+  from {
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dashoffset: -1000;
+  }
+}
