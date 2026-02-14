@@ -1,16 +1,16 @@
 import type { Graph } from '@antv/x6'
-import type { MindNode } from '../types/MindNode.ts.ts'
+import type { MindNode } from '../types/MindNode'
 import { Lock } from 'lucide-react'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { Kbd } from '../ui/kbd.tsx.tsx'
-import { DeleteNodeDialog } from './delete-node-dialog.tsx.tsx'
-import { MindMapToolbar } from './mind-map-toolbar.tsx'
-import { registerCustomConnector } from './registry.ts.ts'
-import { RenameNodeDialog } from './rename-node-dialog.tsx.tsx'
-import { useGraphInit } from './use-graph-init.ts.ts'
-import { useGraphOperations } from './use-graph-operations.ts.ts'
-import { useKeyboardShortcuts } from './use-keyboard-shortcuts.ts.ts'
-import './algo-node.tsx.tsx' // Import for side effects (registering shape and inserting css)
+import { Kbd } from '../ui/kbd'
+import { DeleteNodeDialog } from './delete-node-dialog'
+import { MindMapToolbar } from './mind-map-toolbar'
+import { registerCustomConnector } from './registry'
+import { RenameNodeDialog } from './rename-node-dialog'
+import { useGraphInit } from './use-graph-init'
+import { useGraphOperations } from './use-graph-operations'
+import { useKeyboardShortcuts } from './use-keyboard-shortcuts'
+import './algo-node' // Import for side effects (registering shape and inserting css)
 
 interface MindMapProps {
   data: MindNode

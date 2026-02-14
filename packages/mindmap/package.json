@@ -1,10 +1,17 @@
 {
   "name": "@widget-js/mindmap",
   "version": "0.0.1",
+  "author": {
+    "name": "Neo Fu",
+    "email": "rtugeek@gmail.com"
+  },
   "description": "A React MindMap component using AntV X6",
   "main": "./dist/index.umd.js",
   "module": "./dist/index.es.js",
   "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.es.js",
@@ -43,6 +50,7 @@
     "@vitejs/plugin-react": "^4.2.0",
     "autoprefixer": "^10.4.19",
     "postcss": "^8.4.38",
+    "rollup-plugin-visualizer": "^6.0.5",
     "tailwindcss": "^4.1.18",
     "typescript": "^5.0.0",
     "vite": "^5.0.0",
