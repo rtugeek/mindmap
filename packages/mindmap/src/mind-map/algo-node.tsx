@@ -8,7 +8,7 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from '@/components/ui/context-menu'
+} from '../ui/context-menu'
 
 export interface NodeStatus {
   id: string

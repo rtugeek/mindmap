@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '../ui/button'
 import {
   Dialog,
   DialogClose,
@@ -7,8 +7,8 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
+} from '../ui/dialog'
+import { Input } from '../ui/input'
 
 interface RenameNodeDialogProps {
   open: boolean

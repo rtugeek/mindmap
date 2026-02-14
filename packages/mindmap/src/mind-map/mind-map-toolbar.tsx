@@ -1,8 +1,8 @@
 import { CheckSquare, Download, Grid, Maximize, ZoomIn, ZoomOut } from 'lucide-react'
 import React from 'react'
-import { Button } from '@/components/ui/button'
-import { ButtonGroup } from '@/components/ui/button-group'
-import { Toggle } from '@/components/ui/toggle'
+import { Button } from '../ui/button'
+import { ButtonGroup } from '../ui/button-group'
+import { Toggle } from '../ui/toggle'
 
 interface MindMapToolbarProps {
   zoomIn: () => void

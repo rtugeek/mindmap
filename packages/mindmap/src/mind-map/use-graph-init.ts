@@ -1,10 +1,10 @@
 import type { Cell, Edge, Node } from '@antv/x6'
+import type { MindNode } from '../types/MindNode'
 import type { NodeStatus } from './algo-node'
-import type { MindNode } from '@/data/MindNode'
 import Hierarchy from '@antv/hierarchy'
 import { Export, Graph, Selection } from '@antv/x6'
 import { useEffect } from 'react'
-import { ThemeStyles } from '../flow-constants'
+import { ThemeStyles } from '../constants/flow-constants'
 import { registerCustomEdge } from './registry'
 import { findNodeInTree, getMindNodeData, getVisibleData, transformData } from './utils'
 

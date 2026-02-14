@@ -1,7 +1,7 @@
-import type { MindNode } from '@/data/MindNode'
+import type { MindNode } from '../types/MindNode'
 
 export function getMindNodeData(node: any): MindNode {
-  const { children, ...restData } = node.data || {}
+  const { ...restData } = node.data || {}
   return {
     ...restData,
     id: node.id,

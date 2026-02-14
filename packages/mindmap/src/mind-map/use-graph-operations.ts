@@ -1,5 +1,5 @@
 import type { Graph } from '@antv/x6'
-import type { MindNode } from '@/data/MindNode'
+import type { MindNode } from '../types/MindNode'
 import { useState } from 'react'
 import { toast } from 'sonner'
 import { findNodeInTree, findNodeWithParent, getMindNodeData } from './utils'

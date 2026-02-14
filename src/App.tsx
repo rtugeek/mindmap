@@ -1,7 +1,6 @@
-import type { MindMapRef } from './components/mind-map'
-import type { MindNode } from './data/MindNode'
+import type { MindMapRef, MindNode } from '@widget-js/mindmap'
+import { MindMap } from '@widget-js/mindmap'
 import { useEffect, useRef, useState } from 'react'
-import { MindMap } from './components/mind-map'
 import { Toaster } from './components/ui/sonner'
 import './App.css'
 

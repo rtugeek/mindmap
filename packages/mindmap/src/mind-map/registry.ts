@@ -1,5 +1,5 @@
 import { Graph, Path } from '@antv/x6'
-import { ThemeStyles } from '../flow-constants'
+import { ThemeStyles } from '../constants/flow-constants'
 
 export function registerCustomConnector() {
   // Check if already registered to avoid warnings if strict

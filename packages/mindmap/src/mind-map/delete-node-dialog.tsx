@@ -1,5 +1,5 @@
 import React from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '../ui/button'
 import {
   Dialog,
   DialogClose,
@@ -7,7 +7,7 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
+} from '../ui/dialog'
 
 interface DeleteNodeDialogProps {
   open: boolean
@@ -29,7 +29,9 @@ export const DeleteNodeDialog: React.FC<DeleteNodeDialogProps> = ({
           <DialogTitle>删除节点</DialogTitle>
         </DialogHeader>
         <div className="text-sm text-muted-foreground">
-          确认删除“{nodeName || '未命名'}”吗？该操作不可撤销。
+          确认删除“
+          {nodeName || '未命名'}
+          ”吗？该操作不可撤销。
         </div>
         <DialogFooter>
           <DialogClose asChild>
