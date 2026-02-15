@@ -17,12 +17,14 @@ export interface NodeStatus {
   collapsed?: boolean
   editing?: boolean
   readonly?: boolean
+  depth?: number
+  shouldAnimate?: boolean
 }
 
 function AlgoNode(props: { node: Cell }) {
   const { node } = props
   const data = node?.getData() as NodeStatus
-  const { label, checked = false, collapsed = false, readonly = false } = data
+  const { label, checked = false, collapsed = false, readonly = false, depth = 0, shouldAnimate = false } = data
   const showCheckboxes = (data as any).showCheckboxes !== false
   const onAddChild = (data as any).onAddChild as undefined | (() => void)
   const onDeleteNode = (data as any).onDeleteNode as undefined | (() => void)
@@ -102,7 +104,12 @@ function AlgoNode(props: { node: Cell }) {
   const hasChildren = (data as any).hasChildren
 
   const content = (
-    <div className={`node ${checked ? 'checked' : ''}`}>
+    <div
+      className={`node ${checked ? 'checked' : ''} ${shouldAnimate ? 'node-enter' : ''}`}
+      style={{
+        animationDelay: shouldAnimate ? `${depth * 50}ms` : '0ms',
+      }}
+    >
       {showCheckboxes && (
         <span className="checkbox-wrapper">
           <input
@@ -224,6 +231,22 @@ register({
 
 // @ts-expect-error insert-css type definition issue
 insertCss(`
+@keyframes node-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.node-enter {
+  opacity: 0;
+  animation: node-enter 0.3s ease-out forwards;
+}
+
 .node {
   display: flex;
   align-items: center;

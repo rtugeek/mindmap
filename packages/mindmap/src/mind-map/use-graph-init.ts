@@ -205,7 +205,7 @@ export function useGraphInit({
         }
       }
 
-      traverse(result)
+      traverse(result, 0)
       graph.resetCells(cells)
       if (selectedNodeIdRef.current) {
         const cell = graph.getCellById(selectedNodeIdRef.current)
@@ -231,6 +231,20 @@ export function useGraphInit({
       // Handle collapsed change
       if (current.collapsed !== previous?.collapsed) {
         sourceNode.collapsed = current.collapsed
+
+        // If collapsing, reset animation state for all children so they animate again when expanded
+        if (sourceNode.collapsed) {
+          const resetAnimated = (n: any) => {
+            if (n.children) {
+              n.children.forEach((c: any) => {
+                c._animated = false
+                resetAnimated(c)
+              })
+            }
+          }
+          resetAnimated(sourceNode)
+        }
+
         // Re-render the graph
         render()
         onNodeChange?.(getMindNodeData(treeDataRef.current), 'collapse')

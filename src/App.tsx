@@ -48,7 +48,7 @@ function App() {
   return (
     <div className="app-container">
       <div className="header">
-        <h1>AntV X6 Demo</h1>
+        <h1>MindMap Demo</h1>
         <div className="header-actions">
           <button className="theme-toggle" onClick={toggleTheme}>
             {isDarkMode ? '🌞 Light' : '🌙 Dark'}
