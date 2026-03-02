@@ -2,6 +2,7 @@ import type { MindMapRef, MindNode } from '@widget-js/mindmap'
 import { MindMap } from '@widget-js/mindmap'
 import { useEffect, useRef, useState } from 'react'
 import { Toaster } from './components/ui/sonner'
+import '@widget-js/mindmap/style.css'
 import './App.css'
 
 const skillJson: MindNode = {

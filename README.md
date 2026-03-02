@@ -20,6 +20,7 @@ yarn add @widget-js/mindmap
 import type { MindNode } from '@widget-js/mindmap'
 import { MindMap } from '@widget-js/mindmap'
 import { useState } from 'react'
+import '@widget-js/mindmap/style.css'
 
 const data: MindNode = {
   id: 'root',

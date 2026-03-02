@@ -73,12 +73,3 @@
   height: 500px;
   overflow: hidden;
 }
-
-@keyframes ant-line-flow {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -1000;
-  }
-}

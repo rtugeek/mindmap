@@ -11,6 +11,7 @@ import { useGraphInit } from './use-graph-init'
 import { useGraphOperations } from './use-graph-operations'
 import { useKeyboardShortcuts } from './use-keyboard-shortcuts'
 import './algo-node' // Import for side effects (registering shape and inserting css)
+import './index.css'
 
 interface MindMapProps {
   data: MindNode
@@ -130,7 +131,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
   }
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100%', maxHeight: '100vh' }}>
       <div
         ref={containerRef}
         style={{
@@ -138,9 +139,9 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
           height: '100%',
         }}
       />
-      <div className="absolute top-5 left-5 z-[100] text-xl font-bold text-foreground pointer-events-none select-none flex items-center gap-2">
+      <div className="mindmap-header">
         {title}
-        {readonly && <Lock className="w-4 h-4" />}
+        {readonly && <Lock className="mindmap-header-icon" />}
       </div>
       <MindMapToolbar
         zoomIn={zoomIn}
@@ -153,18 +154,18 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
         onToggleGrid={setShowGrid}
       />
       {!readonly && (
-        <div className="absolute bottom-5 left-5 z-[100] text-xs text-muted-foreground pointer-events-none select-none p-3">
-          <div className="mb-2 font-medium text-foreground">选中节点后：</div>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex items-center gap-2">
+        <div className="mindmap-shortcuts">
+          <div className="mindmap-shortcuts-title">选中节点后：</div>
+          <div className="mindmap-shortcuts-list">
+            <div className="mindmap-shortcut-item">
               <Kbd>Tab</Kbd>
               <span>创建子节点</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="mindmap-shortcut-item">
               <Kbd>Enter</Kbd>
               <span>创建同级节点</span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="mindmap-shortcut-item">
               <Kbd>Delete</Kbd>
               <span>删除节点</span>
             </div>

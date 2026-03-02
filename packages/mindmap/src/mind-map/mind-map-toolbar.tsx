@@ -26,8 +26,8 @@ export const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
   onToggleGrid,
 }) => {
   return (
-    <div className="absolute top-5 right-5 z-[100] flex gap-2">
-      <ButtonGroup className="shadow-sm bg-background rounded-md overflow-hidden">
+    <div className="mindmap-toolbar">
+      <ButtonGroup className="mindmap-toolbar-group">
         <Toggle
           pressed={showCheckboxes}
           onPressedChange={onToggleCheckboxes}
@@ -35,7 +35,7 @@ export const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
           size="sm"
           title="Toggle Checkboxes"
         >
-          <CheckSquare className="h-4 w-4" />
+          <CheckSquare className="mindmap-toolbar-icon" />
         </Toggle>
         <Toggle
           pressed={showGrid}
@@ -44,22 +44,22 @@ export const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
           size="sm"
           title="Toggle Grid"
         >
-          <Grid className="h-4 w-4" />
+          <Grid className="mindmap-toolbar-icon" />
         </Toggle>
       </ButtonGroup>
 
-      <ButtonGroup className="shadow-sm bg-background rounded-md overflow-hidden">
+      <ButtonGroup className="mindmap-toolbar-group">
         <Button variant="outline" size="sm" onClick={zoomIn} title="Zoom In">
-          <ZoomIn className="h-4 w-4 mr-1" />
+          <ZoomIn className="mindmap-toolbar-icon mindmap-toolbar-icon-mr" />
         </Button>
         <Button variant="outline" size="sm" onClick={zoomOut} title="Zoom Out">
-          <ZoomOut className="h-4 w-4 mr-1" />
+          <ZoomOut className="mindmap-toolbar-icon mindmap-toolbar-icon-mr" />
         </Button>
         <Button variant="outline" size="sm" onClick={zoomToOne} title="Fit to View">
-          <Maximize className="h-4 w-4 mr-1" />
+          <Maximize className="mindmap-toolbar-icon mindmap-toolbar-icon-mr" />
         </Button>
         <Button variant="outline" size="sm" onClick={exportGraph} title="Export Graph">
-          <Download className="h-4 w-4 mr-1" />
+          <Download className="mindmap-toolbar-icon mindmap-toolbar-icon-mr" />
         </Button>
       </ButtonGroup>
     </div>

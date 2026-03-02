@@ -205,7 +205,7 @@ export function useGraphInit({
         }
       }
 
-      traverse(result, 0)
+      traverse(result)
       graph.resetCells(cells)
       if (selectedNodeIdRef.current) {
         const cell = graph.getCellById(selectedNodeIdRef.current)
