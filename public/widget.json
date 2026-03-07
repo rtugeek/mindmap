@@ -1,0 +1,81 @@
+{
+  "name": "widgetjs.cn.mindmap",
+  "version": "0.0.1",
+  "author": "Neo Fu",
+  "homepage": "https://widgetjs.cn",
+  "title": {
+    "zh-CN": "思维导图",
+    "en-US": "Mind Map"
+  },
+  "description": {
+    "zh-CN": "思维导图",
+    "en-US": "Mind Map"
+  },
+  "entry": "index.html",
+  "remoteEntry": "https://widgetjs.cn/mindmap",
+  "remotePackage": "https://widgetjs.cn/mindmap/widget.json",
+  "remote": {
+    "entry": "https://widgetjs.cn/mindmap",
+    "hash": true,
+    "base": "/mindmap",
+    "hostname": "widgetjs.cn"
+  },
+  "zipUrl": "https://widgetjs.cn/mindmap/widget.zip",
+  "hash": true,
+  "url": "",
+  "widgets": [
+    {
+      "name": "widgetjs.cn.mindmap.default",
+      "title": {
+        "zh-CN": "思维导图",
+        "en-US": "Mind Map"
+      },
+      "description": {
+        "zh-CN": "帮助你整理知识碎片与思绪",
+        "en-US": "Help you organize knowledge fragments and thoughts"
+      },
+      "keywords": [
+        "recommend"
+      ],
+      "security": false,
+      "permissions": [],
+      "lang": "zh-CN",
+      "width": 1,
+      "height": 1,
+      "maxWidth": 1,
+      "webviewTag": false,
+      "maxHeight": 1,
+      "minWidth": 1,
+      "minHeight": 1,
+      "movable": true,
+      "singleton": false,
+      "resizable": true,
+      "path": "/",
+      "meta": {},
+      "backgroundThrottling": false,
+      "previewImage": "/images/preview_clock.png",
+      "categories": [
+        "ai",
+        "utilities"
+      ],
+      "supportDeployMode": 65536,
+      "routes": [],
+      "browserWindowOptions": {
+        "transparent": false,
+        "frame": true,
+        "skipTaskbar": false,
+        "width": 1200,
+        "height": 800,
+        "titleBarStyle": "hidden",
+        "backgroundThrottling": false
+      },
+      "socialLinks": [
+        {
+          "name": "github",
+          "link": "https://github.com/rtugeek/mindmap"
+        }
+      ]
+    }
+  ],
+  "pages": []
+}

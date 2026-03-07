@@ -9,7 +9,7 @@ interface UseGraphOperationsProps {
   treeDataRef: React.RefObject<any>
   renderRef: React.RefObject<(() => void) | null>
   selectedNodeIdRef: React.RefObject<string | null>
-  onNodeChange?: (data: MindNode, type: 'create' | 'delete' | 'update' | 'check' | 'collapse' | 'undo') => void
+  onNodeChange?: (data: MindNode, type: 'create' | 'delete' | 'update' | 'check' | 'collapse' | 'undo', changedNode?: MindNode) => void
 }
 
 export function useGraphOperations({
@@ -65,7 +65,7 @@ export function useGraphOperations({
 
     sourceNode.collapsed = false
     renderRef.current?.()
-    onNodeChange?.(getMindNodeData(treeDataRef.current), 'create')
+    onNodeChange?.(getMindNodeData(treeDataRef.current), 'create', newChildData)
 
     // 如果是通过快捷键创建的，需要选中新节点并进入编辑模式
     if (parentId && nodeValue) {
@@ -110,7 +110,7 @@ export function useGraphOperations({
     setRenameOpen(false)
     setRenameNodeId(null)
     renderRef.current?.()
-    onNodeChange?.(getMindNodeData(treeDataRef.current), 'update')
+    onNodeChange?.(getMindNodeData(treeDataRef.current), 'update', sourceNode)
   }
 
   const applyDelete = () => {
@@ -137,7 +137,7 @@ export function useGraphOperations({
     setDeleteOpen(false)
     setDeleteNodeId(null)
     renderRef.current?.()
-    onNodeChange?.(getMindNodeData(treeDataRef.current), 'delete')
+    onNodeChange?.(getMindNodeData(treeDataRef.current), 'delete', deletedNode)
 
     toast(`已删除 ${deletedNodeName}`, {
       action: {
@@ -156,7 +156,7 @@ export function useGraphOperations({
           }
 
           renderRef.current?.()
-          onNodeChange?.(getMindNodeData(treeDataRef.current), 'undo')
+          onNodeChange?.(getMindNodeData(treeDataRef.current), 'undo', deletedNode)
         },
       },
     })
@@ -192,7 +192,7 @@ export function useGraphOperations({
     parent.data.children.splice(index + 1, 0, newChildData)
 
     renderRef.current?.()
-    onNodeChange?.(getMindNodeData(treeDataRef.current), 'create')
+    onNodeChange?.(getMindNodeData(treeDataRef.current), 'create', newChildData)
 
     setTimeout(() => {
       const graph = graphRef.current

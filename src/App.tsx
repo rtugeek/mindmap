@@ -1,66 +1,175 @@
-import type { MindMapRef, MindNode } from '@widget-js/mindmap'
-import { MindMap } from '@widget-js/mindmap'
-import { useEffect, useRef, useState } from 'react'
+import type { MindNode } from '@widget-js/mindmap'
+import type { MindMapData } from './data/mindmap-data'
+import { Plus, Sparkles } from 'lucide-react'
+import { useTheme } from 'next-themes'
+import { useEffect, useState } from 'react'
+import { AppSidebar } from './components/app-sidebar'
+import { CreateMindMapDialog } from './components/dialogs/create-mind-map-dialog'
+import { MindMapContainer } from './components/mind-map-container'
+import TextType from './components/TextType'
+import { Button } from './components/ui/button'
+import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTitle } from './components/ui/empty'
+import { Separator } from './components/ui/separator'
+import { SidebarInset, SidebarProvider, SidebarTrigger } from './components/ui/sidebar'
 import { Toaster } from './components/ui/sonner'
+import { WindowControls } from './components/window-controls'
+import { mindMapDataRepository } from './data/mind-map-data-repository'
+import { useAutoSync } from './hooks/use-auto-sync'
+
 import '@widget-js/mindmap/style.css'
 import './App.css'
 
-const skillJson: MindNode = {
-  id: 'vue3',
-  name: 'vue3',
-  url: 'https://vuejs.org/',
-  children: [
-    {
-      name: '生命周期',
-      id: 'vue3_lifecycle',
-      children: [
-        { name: 'beforeCreate', id: 'vue3_lifecycle_beforeCreate' },
-        { name: 'created', id: 'vue3_lifecycle_created' },
-        { name: 'beforeMount', id: 'vue3_lifecycle_beforeMount' },
-        { name: 'mounted', id: 'vue3_lifecycle_mounted' },
-        { name: 'beforeUpdate', id: 'vue3_lifecycle_beforeUpdate' },
-        { name: 'updated', id: 'vue3_lifecycle_updated' },
-        { name: 'beforeUnmount', id: 'vue3_lifecycle_beforeUnmount' },
-        { name: 'unmounted', id: 'vue3_lifecycle_unmounted' },
-      ],
-    },
-    { name: '组件', id: 'vue3_component' },
-    { name: '响应式', id: 'vue3_reactive' },
-    { name: '模板', id: 'vue3_template' },
-    { name: '指令', id: 'vue3_directive' },
-    { name: '事件', id: 'vue3_event' },
-    { name: '计算属性', id: 'vue3_computed' },
-  ],
-}
-
 function App() {
-  const [isDarkMode, setIsDarkMode] = useState(false)
-  const graphRef = useRef<MindMapRef>(null)
+  useAutoSync()
+  const { resolvedTheme } = useTheme()
+  const isDarkMode = resolvedTheme === 'dark'
+  const [currentMindMap, setCurrentMindMap] = useState<MindMapData | null>(null)
+  const [mindMapGroups, setMindMapGroups] = useState<Record<string, MindMapData[]>>({})
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light')
-    document.documentElement.classList.toggle('dark', isDarkMode)
   }, [isDarkMode])
 
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode)
+  const loadMindMapList = async () => {
+    try {
+      const list = await mindMapDataRepository.getAll()
+      // Group by 'group' field
+      const groups: Record<string, MindMapData[]> = {}
+      list.forEach((item) => {
+        const groupName = item.group || '默认分组'
+        if (!groups[groupName]) {
+          groups[groupName] = []
+        }
+        groups[groupName].push(item)
+      })
+      setMindMapGroups(groups)
+    }
+    catch (error) {
+      console.error('Failed to load mind map list:', error)
+    }
+  }
+
+  useEffect(() => {
+    loadMindMapList()
+  }, [])
+
+  const handleNodeChange = async (data: MindNode) => {
+    if (currentMindMap) {
+      const updatedMindMap = {
+        ...currentMindMap,
+        mindmap: data,
+        update_time: new Date(),
+      }
+
+      // setCurrentMindMap(updatedMindMap)
+      await mindMapDataRepository.save(updatedMindMap)
+    }
+  }
+
+  const handleCreateMindMap = async (topic: string, emoji: string, group: string, initialData?: MindNode) => {
+    const newMindMapData: Partial<MindMapData> = {
+      topic,
+      group: group || '默认分组',
+      user_id: 'default_user',
+      emoji: emoji || '📝',
+      mindmap: initialData || {
+        id: 'root',
+        name: topic,
+        children: [],
+      },
+    }
+
+    try {
+      const id = await mindMapDataRepository.save(newMindMapData)
+      const savedData = await mindMapDataRepository.get(id)
+      if (savedData) {
+        setCurrentMindMap(savedData)
+        await loadMindMapList()
+      }
+      return id
+    }
+    catch (error) {
+      console.error('Failed to save mind map:', error)
+      return undefined
+    }
+  }
+
+  const handleUpdateMindMap = async (id: string, mindmap: MindNode) => {
+    const existing = await mindMapDataRepository.get(id)
+    if (existing) {
+      const updated = { ...existing, mindmap, update_time: new Date() }
+      await mindMapDataRepository.save(updated)
+      if (currentMindMap && currentMindMap.id === id) {
+        setCurrentMindMap(updated)
+      }
+    }
   }
 
   return (
-    <div className="app-container">
-      <div className="header">
-        <h1>MindMap Demo</h1>
-        <div className="header-actions">
-          <button className="theme-toggle" onClick={toggleTheme}>
-            {isDarkMode ? '🌞 Light' : '🌙 Dark'}
-          </button>
+    <SidebarProvider>
+      <AppSidebar
+        onMindMapCreated={setCurrentMindMap}
+        groups={mindMapGroups}
+        onRefresh={loadMindMapList}
+      />
+      <SidebarInset className="h-screen overflow-hidden">
+        <header className="flex h-12 shrink-0 items-center gap-2 border-b px-4">
+          <SidebarTrigger className="-ml-1" />
+          <Separator orientation="vertical" className="mr-2 h-4" />
+          <div className="flex flex-1 items-center justify-between [-webkit-app-region:drag] [app-region:drag]">
+            <h1 className="text-lg font-semibold flex-1">&nbsp;</h1>
+            <div className="flex items-center gap-2">
+              <WindowControls />
+            </div>
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 overflow-hidden">
+          {currentMindMap
+            ? (
+                <MindMapContainer
+                  currentMindMap={currentMindMap}
+                  isDarkMode={isDarkMode}
+                  onNodeChange={handleNodeChange}
+                />
+              )
+            : (
+                <Empty className="h-full border-0">
+                  <EmptyHeader>
+                    <EmptyMedia variant="icon" className="mb-4">
+                      <Sparkles className="size-6 text-primary" />
+                    </EmptyMedia>
+                    <EmptyTitle className="text-2xl font-bold">欢迎使用思维导图</EmptyTitle>
+                    <EmptyDescription className="text-base mt-2 mb-6 max-w-md h-[24px]">
+                      <TextType
+                        text={[
+                          '整理知识碎片',
+                          '梳理复杂思绪',
+                          '构建知识体系',
+                          '拆解复杂任务',
+                          '构思内容大纲',
+                        ]}
+                      />
+                    </EmptyDescription>
+                  </EmptyHeader>
+                  <EmptyContent>
+                    <CreateMindMapDialog
+                      onConfirm={handleCreateMindMap}
+                      onUpdate={handleUpdateMindMap}
+                      onAIStreamFinished={handleUpdateMindMap}
+                      trigger={(
+                        <Button className="mt-4">
+                          <Plus className="mr-2 size-4" />
+                          创建思维导图
+                        </Button>
+                      )}
+                    />
+                  </EmptyContent>
+                </Empty>
+              )}
         </div>
-      </div>
-      <div className="graph-container" style={{ height: '300px' }}>
-        <MindMap ref={graphRef} title="Vue3" data={skillJson} isDarkMode={isDarkMode} />
-      </div>
-      <Toaster />
-    </div>
+        <Toaster />
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
 

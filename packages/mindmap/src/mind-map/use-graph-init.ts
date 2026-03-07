@@ -20,7 +20,7 @@ interface UseGraphInitProps {
   showCheckboxes: boolean
   showGrid: boolean
   readonly: boolean
-  onNodeChange?: (data: MindNode, type: 'create' | 'delete' | 'update' | 'check' | 'collapse' | 'undo') => void
+  onNodeChange?: (data: MindNode, type: 'create' | 'delete' | 'update' | 'check' | 'collapse' | 'undo', changedNode?: MindNode) => void
   openCreateDialog: (parentId: string) => void
   openDeleteDialog: (nodeId: string) => void
   openRenameDialog: (nodeId: string) => void
@@ -247,7 +247,7 @@ export function useGraphInit({
 
         // Re-render the graph
         render()
-        onNodeChange?.(getMindNodeData(treeDataRef.current), 'collapse')
+        onNodeChange?.(getMindNodeData(treeDataRef.current), 'collapse', sourceNode)
         return // Return early since render() will reset cells
       }
 
@@ -281,14 +281,14 @@ export function useGraphInit({
             }
           })
         }
-        onNodeChange?.(getMindNodeData(treeDataRef.current), 'check')
+        onNodeChange?.(getMindNodeData(treeDataRef.current), 'check', sourceNode)
       }
 
       // Handle label change
       if (current.label !== previous?.label) {
         sourceNode.data = sourceNode.data || {}
         sourceNode.data.name = current.label
-        onNodeChange?.(getMindNodeData(treeDataRef.current), 'update')
+        onNodeChange?.(getMindNodeData(treeDataRef.current), 'update', sourceNode)
       }
     })
 

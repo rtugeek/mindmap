@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
@@ -164,7 +168,7 @@
   position: absolute;
   bottom: 1.25rem;
   left: 1.25rem;
-  z-index: 100;
+  z-index: 30;
   font-size: 0.75rem;
   line-height: 1rem;
   color: var(--color-muted-foreground);
@@ -195,7 +199,7 @@
   position: absolute;
   top: 1.25rem;
   right: 1.25rem;
-  z-index: 100;
+  z-index: 30;
   display: flex;
   gap: 0.5rem;
 }

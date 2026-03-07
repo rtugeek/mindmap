@@ -1,14 +1,16 @@
 import { CheckSquare, Download, Grid, Maximize, ZoomIn, ZoomOut } from 'lucide-react'
 import React from 'react'
-import { Button } from '../ui/button'
-import { ButtonGroup } from '../ui/button-group'
-import { Toggle } from '../ui/toggle'
+import { Button } from '../components/ui/button'
+import { ButtonGroup } from '../components/ui/button-group'
+import { Spinner } from '../components/ui/spinner'
+import { Toggle } from '../components/ui/toggle'
 
 interface MindMapToolbarProps {
   zoomIn: () => void
   zoomOut: () => void
   zoomToOne: () => void
   exportGraph: () => void
+  isExporting: boolean
   showCheckboxes: boolean
   onToggleCheckboxes: (checked: boolean) => void
   showGrid: boolean
@@ -20,6 +22,7 @@ export const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
   zoomOut,
   zoomToOne,
   exportGraph,
+  isExporting,
   showCheckboxes,
   onToggleCheckboxes,
   showGrid,
@@ -58,8 +61,14 @@ export const MindMapToolbar: React.FC<MindMapToolbarProps> = ({
         <Button variant="outline" size="sm" onClick={zoomToOne} title="Fit to View">
           <Maximize className="mindmap-toolbar-icon mindmap-toolbar-icon-mr" />
         </Button>
-        <Button variant="outline" size="sm" onClick={exportGraph} title="Export Graph">
-          <Download className="mindmap-toolbar-icon mindmap-toolbar-icon-mr" />
+        <Button variant="outline" size="sm" onClick={exportGraph} title="Export Graph" disabled={isExporting}>
+          {isExporting
+            ? (
+                <Spinner className="mindmap-toolbar-icon mindmap-toolbar-icon-mr" />
+              )
+            : (
+                <Download className="mindmap-toolbar-icon mindmap-toolbar-icon-mr" />
+              )}
         </Button>
       </ButtonGroup>
     </div>

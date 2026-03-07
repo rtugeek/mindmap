@@ -15,9 +15,17 @@ export default antfu({
     'ts/no-use-before-define': 'off',
     'ts/explicit-function-return-type': 'off',
     'eqeqeq': 'off',
-    'unused-imports/no-unused-vars': ['error', { caughtErrors: 'none' }],
+    'unused-imports/no-unused-vars': ['error', { caughtErrors: 'none', argsIgnorePattern: '^_' }],
     'style/max-statements-per-line': ['error', {
       max: 2,
     }],
   },
+  ignores: [
+    '**/node_modules/**',
+    '**/dist/**',
+    '**/public/**',
+    'src/components/ui/**',
+    'packages/mindmap/src/components/ui/**',
+    'src/**/animate-ui/**',
+  ],
 })

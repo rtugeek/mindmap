@@ -2,7 +2,7 @@ import type { Graph } from '@antv/x6'
 import type { MindNode } from '../types/MindNode'
 import { Lock } from 'lucide-react'
 import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
-import { Kbd } from '../ui/kbd'
+import { Kbd } from '../components/ui/kbd'
 import { DeleteNodeDialog } from './delete-node-dialog'
 import { MindMapToolbar } from './mind-map-toolbar'
 import { registerCustomConnector } from './registry'
@@ -20,7 +20,7 @@ interface MindMapProps {
   showCheckboxes?: boolean
   showGrid?: boolean
   readonly?: boolean
-  onNodeChange?: (data: MindNode, type: 'create' | 'delete' | 'update' | 'check' | 'collapse' | 'undo') => void
+  onNodeChange?: (data: MindNode, type: 'create' | 'delete' | 'update' | 'check' | 'collapse' | 'undo', changedNode?: MindNode) => void
 }
 
 export interface MindMapRef {
@@ -40,6 +40,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
 
   const [showCheckboxes, setShowCheckboxes] = useState(true)
   const [showGrid, setShowGrid] = useState(true)
+  const [isExporting, setIsExporting] = useState(false)
 
   const {
     renameOpen,
@@ -96,10 +97,17 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
   const exportGraph = () => {
     const graph = graphRef.current
     if (graph) {
-      graph.exportPNG('flow-chart', {
-        padding: 20,
-        backgroundColor: 'transparent',
-        quality: 1,
+      setIsExporting(true)
+      requestAnimationFrame(() => {
+        graph.exportPNG(
+          title.replace(/\s+/g, '-').replace(/\./g, '_').toLowerCase(),
+          {
+            padding: 20,
+            backgroundColor: 'transparent',
+            quality: 1,
+          },
+        )
+        setIsExporting(false)
       })
     }
   }
@@ -148,6 +156,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
         zoomOut={zoomOut}
         zoomToOne={zoomToOne}
         exportGraph={exportGraph}
+        isExporting={isExporting}
         showCheckboxes={showCheckboxes}
         onToggleCheckboxes={setShowCheckboxes}
         showGrid={showGrid}

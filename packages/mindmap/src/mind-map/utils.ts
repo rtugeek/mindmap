@@ -48,6 +48,7 @@ export function transformData(data: any) {
     data: { ...data }, // keep original data
     children: [],
     collapsed: data.collapsed ?? false, // default collapsed state
+    checked: data.checked ?? false,
   }
   if (data.children) {
     result.children = data.children.map((child: any) => transformData(child))

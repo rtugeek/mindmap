@@ -7,7 +7,7 @@ import {
   ContextMenuContent,
   ContextMenuItem,
   ContextMenuTrigger,
-} from '../ui/context-menu'
+} from '../components/ui/context-menu'
 
 export interface NodeStatus {
   id: string
@@ -51,10 +51,16 @@ function AlgoNode(props: { node: Cell }) {
   }, [editing])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Force update the data
+    const isChecked = e.target.checked
     node.setData({
       ...data,
-      checked: e.target.checked,
+      checked: isChecked,
     })
+  }
+
+  const handleCheckboxClick = (e: React.MouseEvent) => {
+    e.stopPropagation()
   }
 
   const handleCollapse = (e: React.MouseEvent) => {
@@ -116,7 +122,9 @@ function AlgoNode(props: { node: Cell }) {
             checked={checked}
             disabled={readonly}
             onChange={handleChange}
-            onMouseDown={e => e.stopPropagation()}
+            onClick={handleCheckboxClick}
+            onMouseDown={handleCheckboxClick}
+            style={{ pointerEvents: 'auto' }}
           />
         </span>
       )}

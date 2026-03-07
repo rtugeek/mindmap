@@ -38,7 +38,7 @@ export function registerCustomEdge(theme: 'light' | 'dark' = 'light') {
       attrs: {
         line: {
           stroke: styles.lineColor,
-          strokeWidth: 1,
+          strokeWidth: 2,
           targetMarker: null,
         },
       },
