@@ -20,6 +20,7 @@ export default new WidgetPackage({
   entry: 'index.html',
   title: { 'zh-CN': '思维导图', 'en-US': 'Mind Map' },
   hash: true,
+  requiredAppVersion: '26.1.1',
   devOptions: {
     folder: './src/widgets/',
     route: true,

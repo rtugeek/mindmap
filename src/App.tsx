@@ -1,5 +1,6 @@
 import type { MindNode } from '@widget-js/mindmap'
 import type { MindMapData } from './data/mindmap-data'
+import { WindowControls } from '@widget-js/react'
 import { Plus, Sparkles } from 'lucide-react'
 import { useTheme } from 'next-themes'
 import { useEffect, useState } from 'react'
@@ -12,15 +13,21 @@ import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyMedia, EmptyTi
 import { Separator } from './components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from './components/ui/sidebar'
 import { Toaster } from './components/ui/sonner'
-import { WindowControls } from './components/window-controls'
 import { mindMapDataRepository } from './data/mind-map-data-repository'
-import { useAutoSync } from './hooks/use-auto-sync'
-
+import { useUser } from './hooks/use-user'
+import { useMindMapStore } from './store/mind-map-store'
+import '@widget-js/react/style.css'
 import '@widget-js/mindmap/style.css'
 import './App.css'
 
 function App() {
-  useAutoSync()
+  const sync = useMindMapStore(state => state.sync)
+
+  useEffect(() => {
+    sync()
+  }, [])
+
+  const { userId } = useUser()
   const { resolvedTheme } = useTheme()
   const isDarkMode = resolvedTheme === 'dark'
   const [currentMindMap, setCurrentMindMap] = useState<MindMapData | null>(null)
@@ -53,24 +60,15 @@ function App() {
     loadMindMapList()
   }, [])
 
-  const handleNodeChange = async (data: MindNode) => {
-    if (currentMindMap) {
-      const updatedMindMap = {
-        ...currentMindMap,
-        mindmap: data,
-        update_time: new Date(),
-      }
-
-      // setCurrentMindMap(updatedMindMap)
-      await mindMapDataRepository.save(updatedMindMap)
-    }
+  const handleNodeChange = async (_data: MindNode) => {
+    // 逻辑已移动到 MindMapContainer
   }
 
   const handleCreateMindMap = async (topic: string, emoji: string, group: string, initialData?: MindNode) => {
     const newMindMapData: Partial<MindMapData> = {
       topic,
       group: group || '默认分组',
-      user_id: 'default_user',
+      user_id: userId || 'default_user',
       emoji: emoji || '📝',
       mindmap: initialData || {
         id: 'root',
@@ -86,6 +84,7 @@ function App() {
         setCurrentMindMap(savedData)
         await loadMindMapList()
       }
+      sync()
       return id
     }
     catch (error) {
@@ -99,6 +98,7 @@ function App() {
     if (existing) {
       const updated = { ...existing, mindmap, update_time: new Date() }
       await mindMapDataRepository.save(updated)
+      sync()
       if (currentMindMap && currentMindMap.id === id) {
         setCurrentMindMap(updated)
       }

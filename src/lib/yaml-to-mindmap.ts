@@ -1,5 +1,4 @@
 import type { MindNode } from '@widget-js/mindmap'
-import type { MindMapData } from '@/data/mindmap-data'
 import { nanoid } from 'nanoid'
 import { parse } from 'yaml'
 
@@ -9,7 +8,7 @@ import { parse } from 'yaml'
  * 1. 显式格式（推荐）：直接对应 MindNode 结构，包含 name, children 等字段
  * 2. 隐式格式（层级）：键值对结构，key 为节点内容，value 为子节点列表
  */
-export function parseYamlToMindMap(yaml: string): Partial<MindMapData> | null {
+export function parseYamlToMindMap(yaml: string) {
   try {
     const parsed = parse(yaml)
     if (!parsed) { return null }

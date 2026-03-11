@@ -1,6 +1,7 @@
 import type { MindNode } from '@widget-js/mindmap'
+import type { BaseData } from './base/base-data'
 
-export interface MindMapData {
+export interface MindMapData extends BaseData {
   /**
    * 本地id
    */
@@ -16,11 +17,7 @@ export interface MindMapData {
   group: string
   topic: string
   mindmap: MindNode
-  user_id: string
+
   create_time: Date
   update_time: Date
-  /**
-   * 上次同步时间
-   */
-  sync_time?: Date
 }

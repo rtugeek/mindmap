@@ -1,0 +1,19 @@
+{
+  "fileMap": [
+    {
+      "src": "./dist/widget.json",
+      "dest": "/www/wwwroot/widgetjs.cn/mindmap/widget.json"
+    },
+    {
+      "src": "./dist/preview_mindmap.png",
+      "dest": "/www/wwwroot/widgetjs.cn/mindmap/preview_mindmap.png"
+    },
+    {
+      "pattern": "./dist/widget_*.zip",
+      "dest": "/www/wwwroot/widgetjs.cn/mindmap/widget.zip"
+    }
+  ],
+  "ftpConfig": {
+    "host": ["mine"]
+  }
+}

@@ -27,14 +27,14 @@ import { useSupabaseChannel } from '@/hooks/use-supabase-channel'
 import { useUser } from '@/hooks/use-user'
 import { useMindMapStore } from '@/store/mind-map-store'
 
-export function AppSidebar({ onMindMapCreated, groups, onRefresh: _onRefresh, ...props }: React.ComponentProps<typeof Sidebar> & {
+export function AppSidebar({ onMindMapCreated, groups, onRefresh, ...props }: React.ComponentProps<typeof Sidebar> & {
   onMindMapCreated?: (data: MindMapData) => void
   groups?: Record<string, MindMapData[]>
   onRefresh?: () => void
 }) {
   const { createMindMap, updateMindMap } = useMindMapStore()
 
-  const { user, nickname, avatar } = useUser()
+  const { user, nickname, avatar, userId } = useUser()
   const [loginState, setLoginState] = React.useState('')
 
   // Handle Supabase channel for login
@@ -67,11 +67,12 @@ export function AppSidebar({ onMindMapCreated, groups, onRefresh: _onRefresh, ..
   }
 
   const handleCreateMindMap = async (topic: string, emoji: string, group: string, initialData?: MindNode) => {
-    const data = await createMindMap(topic, emoji, group, initialData)
+    const data = await createMindMap(topic, emoji, group, initialData, userId)
     if (data) {
       if (onMindMapCreated) {
         onMindMapCreated(data)
       }
+      onRefresh?.()
     }
     return data?.id
   }
@@ -129,7 +130,10 @@ export function AppSidebar({ onMindMapCreated, groups, onRefresh: _onRefresh, ..
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-medium">思维导图</span>
-                  <span className="">v1.0.0</span>
+                  <span className="">
+                    v
+                    {__APP_VERSION__}
+                  </span>
                 </div>
               </a>
             </SidebarMenuButton>
@@ -164,6 +168,7 @@ export function AppSidebar({ onMindMapCreated, groups, onRefresh: _onRefresh, ..
           <MindMapSidebarMenu
             groups={groups}
             onMindMapClick={handleMindMapClick}
+            onRefresh={onRefresh}
           />
         </SidebarGroup>
       </SidebarContent>
@@ -171,9 +176,9 @@ export function AppSidebar({ onMindMapCreated, groups, onRefresh: _onRefresh, ..
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="justify-between cursor-pointer" asChild>
+            <SidebarMenuButton className="cursor-pointer" asChild>
               <div
-                className="flex items-center"
+                className="flex items-center gap-2"
                 onClick={(e) => {
                   const btn = e.currentTarget.querySelector('button[data-slot="theme-toggler-button"]') as HTMLButtonElement
                   if (btn && !btn.contains(e.target as Node)) {
@@ -181,8 +186,8 @@ export function AppSidebar({ onMindMapCreated, groups, onRefresh: _onRefresh, ..
                   }
                 }}
               >
+                <ThemeTogglerButton variant="ghost" className="h-6 w-6" />
                 <span className="font-medium">主题切换</span>
-                <ThemeTogglerButton variant="ghost" size="icon" className="h-6 w-6" />
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>

@@ -1,11 +1,12 @@
 import type { MindNode } from '@widget-js/mindmap'
 import data from '@emoji-mart/data'
 import Picker from '@emoji-mart/react'
+import { AppApi } from '@widget-js/core'
 import { isEqual } from 'lodash'
 import { Loader2, Plus, Sparkles } from 'lucide-react'
 import * as React from 'react'
 import { toast } from 'sonner'
-import { AiApi } from '@/api/ai'
+import { AiApi, InsufficientBalanceError } from '@/api/ai'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -98,7 +99,7 @@ export function CreateMindMapDialog({ onConfirm, onUpdate, onAIStreamFinished, t
     let lastMindMap: MindNode | null = null
 
     try {
-      const userPrompt = `Create a mind map about: ${trimmedTopic}${aiDescription ? `. Additional context: ${aiDescription}` : ''}`
+      const userPrompt = `Create a mind map about: ${trimmedTopic} ${aiDescription ? `. Additional context: ${aiDescription}` : ''}`
       await AiApi.postStream({
         remark: '思维导图',
         systemPrompt: `
@@ -174,10 +175,22 @@ export function CreateMindMapDialog({ onConfirm, onUpdate, onAIStreamFinished, t
     }
     catch (e) {
       console.error(e)
-      toast.error('生成失败', {
-        id: toastId,
-        description: 'AI 生成过程中发生错误',
-      })
+      if (e instanceof InsufficientBalanceError) {
+        toast.error('Token 已耗尽', {
+          id: toastId,
+          description: '您的 AI Token 已用完，请购买补充。',
+          action: {
+            label: '购买 Token',
+            onClick: () => AppApi.showAppWindow('/setting/ai'),
+          },
+        })
+      }
+      else {
+        toast.error('生成失败', {
+          id: toastId,
+          description: 'AI 生成过程中发生错误',
+        })
+      }
     }
     finally {
       setIsGenerating(false)

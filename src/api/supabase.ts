@@ -5,6 +5,6 @@ const supabaseUrl = 'https://supabase.widgetjs.cn'
 const supabase = createClient(supabaseUrl, anonKey)
 
 function getStorageLink(fullPath: string) {
-  return `https://supabase.widgetjs.cn/storage/v1/object/public/${fullPath}`
+  return `${supabaseUrl}/storage/v1/object/public/${fullPath}`
 }
 export { getStorageLink, supabase }

@@ -1,12 +1,13 @@
-import type { Cell, Edge, Node } from '@antv/x6'
-import type { MindNode } from '../types/MindNode'
-import type { NodeStatus } from './algo-node'
+import type { Edge } from '@antv/x6'
+import type { MindNode, MindNodeChangeType } from '../types/MindNode'
 import Hierarchy from '@antv/hierarchy'
 import { Export, Graph, Selection } from '@antv/x6'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { ThemeStyles } from '../constants/flow-constants'
 import { registerCustomEdge } from './registry'
-import { findNodeInTree, getMindNodeData, getVisibleData, transformData } from './utils'
+import { useGraphDnD } from './use-graph-dnd'
+import { useGraphEvents } from './use-graph-events'
+import { findNodeInTree, getVisibleData, transformData } from './utils'
 
 interface UseGraphInitProps {
   containerRef: React.RefObject<HTMLDivElement>
@@ -20,10 +21,11 @@ interface UseGraphInitProps {
   showCheckboxes: boolean
   showGrid: boolean
   readonly: boolean
-  onNodeChange?: (data: MindNode, type: 'create' | 'delete' | 'update' | 'check' | 'collapse' | 'undo', changedNode?: MindNode) => void
+  onNodeChange?: (data: MindNode, type: MindNodeChangeType, changedNode?: MindNode) => void
   openCreateDialog: (parentId: string) => void
   openDeleteDialog: (nodeId: string) => void
   openRenameDialog: (nodeId: string) => void
+  applyMoveNode: (draggedNodeId: string, targetNodeId: string, position?: 'before' | 'after' | 'child') => void
 }
 
 export function useGraphInit({
@@ -42,7 +44,10 @@ export function useGraphInit({
   openCreateDialog,
   openDeleteDialog,
   openRenameDialog,
+  applyMoveNode,
 }: UseGraphInitProps) {
+  const lastRootIdRef = useRef<string | null>(null)
+
   // Update theme ref and graph styles when isDarkMode changes
   useEffect(() => {
     themeRef.current = isDarkMode ? 'dark' : 'light'
@@ -79,6 +84,7 @@ export function useGraphInit({
     }
   }, [isDarkMode, showGrid])
 
+  // Initialize graph
   useEffect(() => {
     if (!containerRef.current) { return }
 
@@ -189,6 +195,7 @@ export function useGraphInit({
             node.children.forEach((child: any) => {
               traverse(child)
               const edge = graph.createEdge({
+                id: `${node.id}-${child.id}`,
                 source: { cell: node.id, port: 'right' },
                 target: { cell: child.id, port: 'left' },
                 shape: 'dag-edge',
@@ -206,139 +213,83 @@ export function useGraphInit({
       }
 
       traverse(result)
-      graph.resetCells(cells)
+
+      // 使用 diff 更新图表，避免全量重新渲染
+      graph.batchUpdate(() => {
+        const existingNodes = graph.getNodes()
+        const existingEdges = graph.getEdges()
+        const existingNodeMap = new Map(existingNodes.map(node => [node.id, node]))
+        const existingEdgeMap = new Map(existingEdges.map(edge => [edge.id, edge]))
+
+        // 1. 更新或添加节点/边
+        cells.forEach((cell) => {
+          if (cell.isNode()) {
+            const existingNode = existingNodeMap.get(cell.id)
+            if (existingNode) {
+              // 更新位置
+              const currentPos = existingNode.getPosition()
+              if (currentPos.x !== cell.getPosition().x || currentPos.y !== cell.getPosition().y) {
+                existingNode.setPosition(cell.getPosition())
+              }
+              // 更新数据
+              const currentData = existingNode.getData()
+              const newData = cell.getData()
+              // 简单的浅比较，如果需要更深层的比较可以自行实现
+              if (JSON.stringify(currentData) !== JSON.stringify(newData)) {
+                existingNode.setData(newData)
+              }
+              // 从待删除列表中移除
+              existingNodeMap.delete(cell.id)
+            }
+            else {
+              graph.addNode(cell)
+            }
+          }
+          else if (cell.isEdge()) {
+            const existingEdge = existingEdgeMap.get(cell.id)
+            if (existingEdge) {
+              // 边通常只需要存在即可，如果属性有变化可以在这里更新
+              // 从待删除列表中移除
+              existingEdgeMap.delete(cell.id)
+            }
+            else {
+              graph.addEdge(cell)
+            }
+          }
+        })
+
+        // 2. 删除不再存在的节点和边
+        existingNodeMap.forEach((node) => {
+          graph.removeNode(node)
+        })
+        existingEdgeMap.forEach((edge) => {
+          graph.removeEdge(edge)
+        })
+      })
+
       if (selectedNodeIdRef.current) {
         const cell = graph.getCellById(selectedNodeIdRef.current)
         if (cell && cell.isNode()) {
-          graph.resetSelection(cell)
+          // 保持选中状态，不需要重置，除非之前的选择丢失了
+          if (!graph.isSelected(cell)) {
+            graph.resetSelection(cell)
+          }
         }
         else {
           graph.cleanSelection()
         }
       }
-      graph.centerContent()
+      // 只有在初始化或者加载新图表时才居中
+      const rootId = root?.id
+      if (rootId && rootId !== lastRootIdRef.current) {
+        lastRootIdRef.current = rootId
+        graph.centerContent()
+      }
     }
 
     renderRef.current = render
 
     render()
-
-    // 监听数据变化事件
-    graph.on('node:change:data', ({ node, current, previous }: { node: Node, current: any, previous: any }) => {
-      const sourceNode = findNodeInTree(treeDataRef.current, node.id)
-      if (!sourceNode) { return }
-
-      // Handle collapsed change
-      if (current.collapsed !== previous?.collapsed) {
-        sourceNode.collapsed = current.collapsed
-
-        // If collapsing, reset animation state for all children so they animate again when expanded
-        if (sourceNode.collapsed) {
-          const resetAnimated = (n: any) => {
-            if (n.children) {
-              n.children.forEach((c: any) => {
-                c._animated = false
-                resetAnimated(c)
-              })
-            }
-          }
-          resetAnimated(sourceNode)
-        }
-
-        // Re-render the graph
-        render()
-        onNodeChange?.(getMindNodeData(treeDataRef.current), 'collapse', sourceNode)
-        return // Return early since render() will reset cells
-      }
-
-      // Handle checked change
-      if (current.checked !== previous?.checked) {
-        const isChecked = current.checked
-        sourceNode.checked = isChecked // Update source of truth
-
-        const updateChildrenChecked = (n: any, checked: boolean) => {
-          if (n.children) {
-            n.children.forEach((c: any) => {
-              c.checked = checked
-              updateChildrenChecked(c, checked)
-            })
-          }
-        }
-        updateChildrenChecked(sourceNode, isChecked)
-
-        const outgoingEdges = graph.getOutgoingEdges(node)
-        if (outgoingEdges) {
-          outgoingEdges.forEach((edge: Edge) => {
-            const childNode = edge.getTargetCell()
-            if (childNode && childNode.isNode()) {
-              const childData = childNode.getData() as NodeStatus
-              if (childData.checked !== isChecked) {
-                childNode.setData({
-                  ...childData,
-                  checked: isChecked,
-                })
-              }
-            }
-          })
-        }
-        onNodeChange?.(getMindNodeData(treeDataRef.current), 'check', sourceNode)
-      }
-
-      // Handle label change
-      if (current.label !== previous?.label) {
-        sourceNode.data = sourceNode.data || {}
-        sourceNode.data.name = current.label
-        onNodeChange?.(getMindNodeData(treeDataRef.current), 'update', sourceNode)
-      }
-    })
-
-    // 鼠标移入节点时高亮路径
-    graph.on('node:mouseenter', ({ node }: { node: Node }) => {
-      // 找到回溯到根节点的路径
-      const edges: Cell[] = []
-      let current = node
-      while (current) {
-        const incomingEdges = graph.getIncomingEdges(current)
-        if (incomingEdges && incomingEdges.length > 0) {
-          const edge = incomingEdges[0] // 树状结构只有一个入边
-          edges.push(edge)
-          current = edge.getSourceCell() as any
-        }
-        else {
-          break
-        }
-      }
-
-      edges.forEach((edge) => {
-        edge.attr('line/stroke', '#1890ff')
-        edge.attr('line/strokeDasharray', 5)
-        edge.attr('line/style/animation', 'ant-line-flow 30s linear infinite')
-      })
-    })
-
-    // 鼠标移出节点时恢复路径
-    graph.on('node:mouseleave', ({ node }: { node: Node }) => {
-      // 找到回溯到根节点的路径
-      const edges: Cell[] = []
-      let current = node
-      while (current) {
-        const incomingEdges = graph.getIncomingEdges(current)
-        if (incomingEdges && incomingEdges.length > 0) {
-          const edge = incomingEdges[0] // 树状结构只有一个入边
-          edges.push(edge)
-          current = edge.getSourceCell() as any
-        }
-        else {
-          break
-        }
-      }
-
-      edges.forEach((edge) => {
-        edge.attr('line/stroke', ThemeStyles[themeRef.current].lineColor)
-        edge.attr('line/strokeDasharray', '5 5') // 恢复为虚线，或者 '' 如果是实线
-        edge.attr('line/style/animation', '')
-      })
-    })
 
     return () => {
       renderRef.current = null
@@ -346,6 +297,25 @@ export function useGraphInit({
     }
   }, [data])
 
+  // Use separated hooks for logic
+  useGraphEvents({
+    graphRef,
+    treeDataRef,
+    renderRef,
+    onNodeChange,
+    themeRef,
+    data,
+  })
+
+  useGraphDnD({
+    graphRef,
+    treeDataRef,
+    readonly,
+    applyMoveNode,
+    data,
+  })
+
+  // Update nodes when checkboxes/readonly state changes
   useEffect(() => {
     const graph = graphRef.current
     if (graph) {

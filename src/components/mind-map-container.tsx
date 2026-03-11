@@ -1,34 +1,15 @@
 import type { MindMapRef, MindNode } from '@widget-js/mindmap'
 import type { MindMapData } from '../data/mindmap-data'
+import { useLocalStorage } from '@uidotdev/usehooks'
 import { MindMap } from '@widget-js/mindmap'
 import { useRef } from 'react'
+import { useMindMapStore } from '../store/mind-map-store'
 
 const defaultMindMapData: MindNode = {
-  id: 'vue3',
-  name: 'vue3',
+  id: '思维导图',
+  name: 'mindMap',
   url: 'https://vuejs.org/',
   children: [
-    {
-      name: '生命周期',
-      id: 'vue3_lifecycle',
-      checked: true,
-      children: [
-        { name: 'beforeCreate', id: 'vue3_lifecycle_beforeCreate' },
-        { name: 'created', id: 'vue3_lifecycle_created' },
-        { name: 'beforeMount', id: 'vue3_lifecycle_beforeMount' },
-        { name: 'mounted', id: 'vue3_lifecycle_mounted' },
-        { name: 'beforeUpdate', id: 'vue3_lifecycle_beforeUpdate' },
-        { name: 'updated', id: 'vue3_lifecycle_updated' },
-        { name: 'beforeUnmount', id: 'vue3_lifecycle_beforeUnmount' },
-        { name: 'unmounted', id: 'vue3_lifecycle_unmounted' },
-      ],
-    },
-    { name: '组件', id: 'vue3_component' },
-    { name: '响应式', id: 'vue3_reactive' },
-    { name: '模板', id: 'vue3_template' },
-    { name: '指令', id: 'vue3_directive' },
-    { name: '事件', id: 'vue3_event' },
-    { name: '计算属性', id: 'vue3_computed' },
   ],
 }
 
@@ -40,9 +21,19 @@ interface MindMapContainerProps {
 
 export function MindMapContainer({ currentMindMap, isDarkMode, onNodeChange }: MindMapContainerProps) {
   const graphRef = useRef<MindMapRef>(null)
+  const { updateMindMap } = useMindMapStore()
+  const [showCheckboxes, setShowCheckboxes] = useLocalStorage('mindmap_show_checkboxes', true)
+  const [showGrid, setShowGrid] = useLocalStorage('mindmap_show_grid', true)
 
   const title = currentMindMap ? currentMindMap.topic : 'Vue3'
   const data = currentMindMap ? currentMindMap.mindmap : defaultMindMapData
+
+  const handleNodeChange = (data: MindNode) => {
+    if (currentMindMap?.id) {
+      updateMindMap(currentMindMap.id, data)
+    }
+    onNodeChange(data)
+  }
 
   return (
     <div className="graph-container flex-1 w-full rounded-xl border bg-card text-card-foreground shadow overflow-hidden relative">
@@ -50,8 +41,18 @@ export function MindMapContainer({ currentMindMap, isDarkMode, onNodeChange }: M
         ref={graphRef}
         title={title}
         data={data}
+        showCheckboxes={showCheckboxes}
+        showGrid={showGrid}
         isDarkMode={isDarkMode}
-        onNodeChange={onNodeChange}
+        onNodeChange={handleNodeChange}
+        onConfigChange={(key, value) => {
+          if (key === 'showCheckboxes') {
+            setShowCheckboxes(value)
+          }
+          if (key === 'showGrid') {
+            setShowGrid(value)
+          }
+        }}
       />
     </div>
   )

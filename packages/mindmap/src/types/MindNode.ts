@@ -10,3 +10,5 @@ export interface MindNode {
   collapsed?: boolean
   children?: MindNode[]
 }
+
+export type MindNodeChangeType = 'create' | 'delete' | 'update' | 'check' | 'collapse' | 'undo' | 'move'

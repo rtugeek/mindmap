@@ -51,6 +51,13 @@ export interface CreateAiDto {
   metadata?: Record<string, any>
 }
 
+export class InsufficientBalanceError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'InsufficientBalanceError'
+  }
+}
+
 export const AiApi = {
   async getPackages(params?: { page?: number, limit?: number }): Promise<{ items: AiTokenPackage[], total: number }> {
     const res = await request.get('/ai/package', { params })
@@ -94,6 +101,17 @@ export const AiApi = {
 
       if (!response.ok) {
         const errorText = await response.text()
+        try {
+          const errorJson = JSON.parse(errorText)
+          if (response.status === 405 && errorJson.msg === 'Insufficient balance. Please top up.') {
+            throw new InsufficientBalanceError('Token 已耗尽，请充值。')
+          }
+        }
+        catch (e) {
+          if (e instanceof InsufficientBalanceError) {
+            throw e
+          }
+        }
         throw new Error(`Error ${response.status}: ${errorText}`)
       }
 

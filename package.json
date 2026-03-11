@@ -1,13 +1,15 @@
 {
   "name": "@widget-js/mindmap-demo",
   "type": "module",
-  "version": "0.0.1",
+  "version": "0.2.1",
   "private": true,
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:offline": "vite build --mode offline",
     "lint": "eslint .",
     "preview": "vite preview",
+    "release": "widget release -t ftp",
     "prepare": "simple-git-hooks"
   },
   "simple-git-hooks": {
@@ -22,12 +24,15 @@
     "@antv/hierarchy": "^0.7.1",
     "@antv/x6": "^3.1.6",
     "@antv/x6-react-shape": "^3.0.1",
+    "@emoji-mart/data": "^1.2.1",
+    "@emoji-mart/react": "^1.1.1",
     "@gsap/react": "^2.1.2",
     "@supabase/supabase-js": "^2.98.0",
     "@tailwindcss/vite": "^4.1.18",
     "@uidotdev/usehooks": "^2.4.1",
     "@widget-js/core": "24.1.1-beta.86",
     "@widget-js/mindmap": "workspace:*",
+    "@widget-js/react": "^0.0.2",
     "ai": "^6.0.78",
     "axios": "^1.13.6",
     "class-variance-authority": "^0.7.1",

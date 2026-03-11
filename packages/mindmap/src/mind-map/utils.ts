@@ -64,3 +64,21 @@ export function getVisibleData(node: any): any {
   }
   return visibleNode
 }
+
+// 获取所有后代节点 ID
+export function getAllDescendants(root: any, id: string): string[] {
+  const descendants: string[] = []
+  const node = findNodeInTree(root, id)
+  if (node && node.children) {
+    const traverse = (n: any) => {
+      if (n.children) {
+        n.children.forEach((child: any) => {
+          descendants.push(child.id)
+          traverse(child)
+        })
+      }
+    }
+    traverse(node)
+  }
+  return descendants
+}

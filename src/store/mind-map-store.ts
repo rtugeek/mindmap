@@ -2,19 +2,22 @@ import type { MindNode } from '@widget-js/mindmap'
 import type { MindMapData } from '@/data/mindmap-data'
 import { create } from 'zustand'
 import { mindMapDataRepository } from '@/data/mind-map-data-repository'
+import { MindMapDataSync } from '@/data/sync/mind-map-data-sync'
 
 interface MindMapState {
   mindMaps: MindMapData[]
   groups: Record<string, MindMapData[]>
   isLoading: boolean
   error: string | null
+  lastSyncTime: Date | null
 
   // Actions
   loadMindMaps: () => Promise<void>
-  createMindMap: (topic: string, emoji: string, group: string, initialData?: MindNode) => Promise<MindMapData | undefined>
+  createMindMap: (topic: string, emoji: string, group: string, initialData?: MindNode, userId?: string) => Promise<MindMapData | undefined>
   updateMindMap: (id: string, mindmap: MindNode) => Promise<void>
   renameMindMap: (id: string, newTopic: string, newEmoji: string, newGroup: string) => Promise<void>
   deleteMindMap: (id: string) => Promise<void>
+  sync: () => Promise<void>
 }
 
 function groupMindMaps(mindMaps: MindMapData[]) {
@@ -34,6 +37,7 @@ export const useMindMapStore = create<MindMapState>((set, get) => ({
   groups: {},
   isLoading: false,
   error: null,
+  lastSyncTime: null,
 
   loadMindMaps: async () => {
     set({ isLoading: true, error: null })
@@ -46,12 +50,12 @@ export const useMindMapStore = create<MindMapState>((set, get) => ({
     }
   },
 
-  createMindMap: async (topic, emoji, group, initialData) => {
+  createMindMap: async (topic, emoji, group, initialData, userId) => {
     try {
       const newMindMapData: Partial<MindMapData> = {
         topic,
         group: group || '默认分组',
-        user_id: 'default_user',
+        user_id: userId || 'default_user',
         emoji: emoji || '📝',
         mindmap: initialData || {
           id: 'root',
@@ -61,6 +65,7 @@ export const useMindMapStore = create<MindMapState>((set, get) => ({
       }
       const id = await mindMapDataRepository.save(newMindMapData)
       await get().loadMindMaps()
+      get().sync()
       return get().mindMaps.find(m => m.id === id)
     }
     catch (error: any) {
@@ -76,6 +81,7 @@ export const useMindMapStore = create<MindMapState>((set, get) => ({
         const updated = { ...existing, mindmap, update_time: new Date() }
         await mindMapDataRepository.save(updated)
         await get().loadMindMaps()
+        get().sync()
       }
     }
     catch (error: any) {
@@ -99,6 +105,7 @@ export const useMindMapStore = create<MindMapState>((set, get) => ({
         }
         await mindMapDataRepository.save(updated)
         await get().loadMindMaps()
+        get().sync()
       }
     }
     catch (error: any) {
@@ -110,9 +117,21 @@ export const useMindMapStore = create<MindMapState>((set, get) => ({
     try {
       await mindMapDataRepository.delete(id)
       await get().loadMindMaps()
+      get().sync()
     }
     catch (error: any) {
       set({ error: error.message })
+    }
+  },
+
+  sync: async () => {
+    try {
+      await MindMapDataSync.sync()
+      set({ lastSyncTime: new Date() })
+      await get().loadMindMaps()
+    }
+    catch (error: any) {
+      console.error('Sync failed:', error)
     }
   },
 }))

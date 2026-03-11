@@ -85,6 +85,14 @@ export function useUser(onload?: (user?: User) => void) {
   // Initial refresh on mount
   useEffect(() => {
     refreshUser()
+    UserApi.getSession().then((session) => {
+      if (session) {
+        supabase.auth.setSession({
+          access_token: session.access_token,
+          refresh_token: session.refresh_token,
+        })
+      }
+    })
   }, [refreshUser])
 
   const nickname = useMemo(() => {

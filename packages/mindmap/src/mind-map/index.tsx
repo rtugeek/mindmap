@@ -1,7 +1,7 @@
 import type { Graph } from '@antv/x6'
-import type { MindNode } from '../types/MindNode'
+import type { MindNode, MindNodeChangeType } from '../types/MindNode'
 import { Lock } from 'lucide-react'
-import { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import { Kbd } from '../components/ui/kbd'
 import { DeleteNodeDialog } from './delete-node-dialog'
 import { MindMapToolbar } from './mind-map-toolbar'
@@ -20,7 +20,8 @@ interface MindMapProps {
   showCheckboxes?: boolean
   showGrid?: boolean
   readonly?: boolean
-  onNodeChange?: (data: MindNode, type: 'create' | 'delete' | 'update' | 'check' | 'collapse' | 'undo', changedNode?: MindNode) => void
+  onConfigChange?: (key: 'showCheckboxes' | 'showGrid', value: boolean) => void
+  onNodeChange?: (data: MindNode, type: MindNodeChangeType, changedNode?: MindNode) => void
 }
 
 export interface MindMapRef {
@@ -30,7 +31,7 @@ export interface MindMapRef {
 // Register custom connector
 registerCustomConnector()
 
-export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode = false, title = '思维导图', readonly = false, onNodeChange }, ref) => {
+export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode = false, showCheckboxes: propShowCheckboxes, showGrid: propShowGrid, title = '思维导图', readonly = false, onNodeChange, onConfigChange }, ref) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const graphRef = useRef<Graph>(null)
   const treeDataRef = useRef<any>(null)
@@ -38,9 +39,21 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
   const selectedNodeIdRef = useRef<string | null>(null)
   const themeRef = useRef<'light' | 'dark'>(isDarkMode ? 'dark' : 'light')
 
-  const [showCheckboxes, setShowCheckboxes] = useState(true)
-  const [showGrid, setShowGrid] = useState(true)
+  const [showCheckboxes, setShowCheckboxes] = useState(propShowCheckboxes ?? true)
+  const [showGrid, setShowGrid] = useState(propShowGrid ?? true)
   const [isExporting, setIsExporting] = useState(false)
+
+  useEffect(() => {
+    if (propShowCheckboxes !== undefined) {
+      setShowCheckboxes(propShowCheckboxes)
+    }
+  }, [propShowCheckboxes])
+
+  useEffect(() => {
+    if (propShowGrid !== undefined) {
+      setShowGrid(propShowGrid)
+    }
+  }, [propShowGrid])
 
   const {
     renameOpen,
@@ -59,6 +72,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
     applyDelete,
     applyCreateChild,
     applyCreateSibling,
+    applyMoveNode,
   } = useGraphOperations({
     graphRef,
     treeDataRef,
@@ -83,6 +97,7 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
     openCreateDialog,
     openDeleteDialog,
     openRenameDialog,
+    applyMoveNode,
   })
 
   useKeyboardShortcuts({
@@ -158,9 +173,15 @@ export const MindMap = forwardRef<MindMapRef, MindMapProps>(({ data, isDarkMode 
         exportGraph={exportGraph}
         isExporting={isExporting}
         showCheckboxes={showCheckboxes}
-        onToggleCheckboxes={setShowCheckboxes}
+        onToggleCheckboxes={(checked) => {
+          setShowCheckboxes(checked)
+          onConfigChange?.('showCheckboxes', checked)
+        }}
         showGrid={showGrid}
-        onToggleGrid={setShowGrid}
+        onToggleGrid={(checked) => {
+          setShowGrid(checked)
+          onConfigChange?.('showGrid', checked)
+        }}
       />
       {!readonly && (
         <div className="mindmap-shortcuts">

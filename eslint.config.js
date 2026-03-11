@@ -26,6 +26,7 @@ export default antfu({
     '**/public/**',
     'src/components/ui/**',
     'packages/mindmap/src/components/ui/**',
-    'src/**/animate-ui/**',
+    'src/**/animate-ui/**/**',
+    'src/**/ai-elements/**/**',
   ],
 })
